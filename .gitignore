@@ -1,0 +1,7 @@
+*.pyc
+tmp
+play-groovy-compiler.jar
+play-groovy.jar
+test-result
+logs
+*.log
