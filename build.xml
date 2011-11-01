@@ -17,6 +17,7 @@
 		<pathelement path="${play.path}/framework/classes"/>
 		<fileset dir="${play.path}/framework/lib">
 			<include name="*.jar"/>
+			<exclude name="groovy-all-*.jar"/>
 		</fileset>
 		<fileset dir="${play.path}/framework">
 			<include name="*.jar"/>
