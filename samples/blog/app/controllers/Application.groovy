@@ -9,10 +9,9 @@ import models.*
 
 class Application extends Controller {
 
-    static void index() {
-    	Logger.info("Test!abcf!!!")
-    	Logger.info('hello there!')
-        render()
-    }
+	static void index() {
+		Logger.info('Loading index')
+		render()
+	}
 
 }

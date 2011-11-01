@@ -36,8 +36,6 @@ class GroovyPlugin extends PlayPlugin {
 	@Override
 	boolean detectClassesChange() {
 
-		Logger.info('Detecting class changes')
-
 		try {
 			def result = update()
 			if (result) {
@@ -126,8 +124,6 @@ class GroovyPlugin extends PlayPlugin {
 		
 		// get the latest sources
 		def newSources = sources()
-		
-		println newSources
 
 		if (currentSources != newSources) {
 			// sources have changed, so compile them
@@ -136,7 +132,6 @@ class GroovyPlugin extends PlayPlugin {
 			return result
 		} else {
 			// sources haven't changed
-			Logger.info('Sources have not changed')
 			return null
 		}
 	}

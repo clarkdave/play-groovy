@@ -2,81 +2,81 @@
 
 <project name="groovy" default="build" basedir=".">
 
-    <target name="check" unless="play.path">
-        <fail message="Please specify Play framework path using -Dplay.path=/path/to/framework/home" />
-    </target>
+	<target name="check" unless="play.path">
+		<fail message="Please specify Play framework path using -Dplay.path=/path/to/framework/home" />
+	</target>
 
-    <path id="project.classpath">
-        <fileset dir="lib">
-            <include name="*.jar"/>
-            <exclude name="play-groovy.jar"/>
-        </fileset>
-    </path>
+	<path id="project.classpath">
+		<fileset dir="lib">
+			<include name="*.jar"/>
+			<exclude name="play-groovy.jar"/>
+		</fileset>
+	</path>
 
-    <path id="play.classpath">
-        <pathelement path="${play.path}/framework/classes"/>
-        <fileset dir="${play.path}/framework/lib">
-            <include name="*.jar"/>
-        </fileset>
-        <fileset dir="${play.path}/framework">
-            <include name="*.jar"/>
-        </fileset>
-    </path>
+	<path id="play.classpath">
+		<pathelement path="${play.path}/framework/classes"/>
+		<fileset dir="${play.path}/framework/lib">
+			<include name="*.jar"/>
+		</fileset>
+		<fileset dir="${play.path}/framework">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
 
-    <target name="build-compiler">
-        <taskdef name="groovyc" classname="org.codehaus.groovy.ant.Groovyc"
-            classpathref="project.classpath"/>
-        <delete dir="tmp"/>
-        <delete file="lib/play-groovy-compiler.jar"/>
-        <mkdir dir="tmp/compiler-classes"/>
+	<target name="build-compiler">
+		<taskdef name="groovyc" classname="org.codehaus.groovy.ant.Groovyc"
+			classpathref="project.classpath"/>
+		<delete dir="tmp"/>
+		<delete file="lib/play-groovy-compiler.jar"/>
+		<mkdir dir="tmp/compiler-classes"/>
 
-        <groovyc srcdir="src-compiler" destdir="tmp/compiler-classes" verbose="yes">
-            <classpath refid="play.classpath"/>
-            <classpath refid="project.classpath"/>
-        </groovyc>
+		<groovyc srcdir="src-compiler" destdir="tmp/compiler-classes" verbose="yes">
+			<classpath refid="play.classpath"/>
+			<classpath refid="project.classpath"/>
+		</groovyc>
 
-        <jar destfile="lib/play-groovy-compiler.jar" basedir="tmp/compiler-classes">
-            <manifest>
-                <section name="Play">
-                    <attribute name="Specification-Title" value="Groovy Compiler"/>
-                </section>
-            </manifest>
-        </jar>
-    </target>
+		<jar destfile="lib/play-groovy-compiler.jar" basedir="tmp/compiler-classes">
+			<manifest>
+				<section name="Play">
+					<attribute name="Specification-Title" value="Groovy Compiler"/>
+				</section>
+			</manifest>
+		</jar>
+	</target>
 
-    <target name="build" depends="check,build-compiler">
-        <delete dir="tmp"/>
-        <delete file="lib/play-groovy.jar"/>
+	<target name="build" depends="check,build-compiler">
+		<delete dir="tmp"/>
+		<delete file="lib/play-groovy.jar"/>
 
-        <mkdir dir="tmp/classes"/>
+		<mkdir dir="tmp/classes"/>
 
-        <javac srcdir="src" destdir="tmp/classes" debug="true">
-            <classpath refid="play.classpath"/>
-            <classpath refid="project.classpath" />
-        </javac>
+		<javac srcdir="src" destdir="tmp/classes" debug="true">
+			<classpath refid="play.classpath"/>
+			<classpath refid="project.classpath" />
+		</javac>
 
-        <copy todir="tmp/classes">
-            <fileset dir="src">
-                <include name="**/*.properties"/>
-                <include name="**/*.xml"/>
-                <include name="**/play.plugins"/>
-            </fileset>
-        </copy>
+		<copy todir="tmp/classes">
+			<fileset dir="src">
+				<include name="**/*.properties"/>
+				<include name="**/*.xml"/>
+				<include name="**/play.plugins"/>
+			</fileset>
+		</copy>
 
-        <java classname="play.groovysupport.build.ModuleBuilder" fork="true" maxmemory="1024m"
-                failonerror="true">
-            <jvmarg value="-Xms512m"/>
-            <classpath refid="play.classpath"/>
-            <classpath refid="project.classpath" />
-        </java>
+		<java classname="play.groovysupport.build.ModuleBuilder" fork="true" maxmemory="1024m"
+				failonerror="true">
+			<jvmarg value="-Xms512m"/>
+			<classpath refid="play.classpath"/>
+			<classpath refid="project.classpath" />
+		</java>
 
-        <jar destfile="lib/play-groovy.jar" basedir="tmp/classes">
-            <manifest>
-                <section name="Play">
-                    <attribute name="Specification-Title" value="Groovy"/>
-                </section>
-            </manifest>
-        </jar>
-    </target>
+		<jar destfile="lib/play-groovy.jar" basedir="tmp/classes">
+			<manifest>
+				<section name="Play">
+					<attribute name="Specification-Title" value="Groovy"/>
+				</section>
+			</manifest>
+		</jar>
+	</target>
 
 </project>
