@@ -1,11 +1,12 @@
 package play.groovysupport
 
 import play.*
+import play.test.*
+import play.test.TestEngine.TestResults
 import play.exceptions.*
 import play.vfs.VirtualFile
 import play.classloading.ApplicationClasses.ApplicationClass
 import play.groovysupport.compiler.*
-import play.mvc.Http.*
 
 class GroovyPlugin extends PlayPlugin {
 	
@@ -31,6 +32,12 @@ class GroovyPlugin extends PlayPlugin {
 	void onConfigurationRead() {
 		// TODO: investigate how necessary this is...
 		Play.configuration.put("play.bytecodeCache", "false")
+	}
+
+	@Override
+	TestResults runTest(Class<BaseTest> testClass) {
+		Logger.info('Running test')
+		null
 	}
 
 	@Override
