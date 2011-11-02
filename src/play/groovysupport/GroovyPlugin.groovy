@@ -1,5 +1,7 @@
 package play.groovysupport
 
+import java.lang.reflect.Modifier
+
 import play.*
 import play.test.*
 import play.test.TestEngine.TestResults
@@ -7,6 +9,10 @@ import play.exceptions.*
 import play.vfs.VirtualFile
 import play.classloading.ApplicationClasses.ApplicationClass
 import play.groovysupport.compiler.*
+
+import org.junit.Assert
+
+import spock.lang.Specification
 
 class GroovyPlugin extends PlayPlugin {
 	
@@ -24,6 +30,22 @@ class GroovyPlugin extends PlayPlugin {
 		)
 
 		onConfigurationRead()
+
+		/**
+		 * The Play TestEngine only grabs classes which are assignable from
+		 * org.junit.Assert -- Spock tests don't extend from JUnit, so we need
+		 * to modify the TestEngine.allUnitTests method to ensure it picks up
+		 * Specification classes too
+		 */
+		TestEngine.metaClass.static.allUnitTests = {
+			List<Class> classes = Play.classloader.getAssignableClasses(Assert.class)
+				.plus( Play.classloader.getAssignableClasses(Specification.class) )
+			
+			classes.findAll {
+				!Modifier.isAbstract(it.getModifiers()) &&
+					!FunctionalTest.class.isAssignableFrom(it)
+			}
+		}
 		
 		Logger.info('Groovy support is active')
 	}
@@ -36,7 +58,7 @@ class GroovyPlugin extends PlayPlugin {
 
 	@Override
 	TestResults runTest(Class<BaseTest> testClass) {
-		Logger.info('Running test')
+
 		null
 	}
 
