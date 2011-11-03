@@ -14,6 +14,7 @@ import static org.codehaus.groovy.control.CompilationUnit.SourceUnitOperation
 import org.codehaus.groovy.ast.ClassHelper
 
 import play.Play
+import play.vfs.VirtualFile
 
 class GroovyCompiler {
 	
@@ -73,8 +74,7 @@ class GroovyCompiler {
 
 			def newClasses = [:]
 			cu.getClasses().each { 
-				newClasses[it.getName()] = [file: classNameToFile(it.getName()), 
-					bytes: it.getBytes()]
+				newClasses[it.getName()] = [bytes: it.getBytes()]
 			}
 
 			// NOTE: since the CompilationUnit will simply recompile everything
@@ -82,17 +82,17 @@ class GroovyCompiler {
 
 			def updated = newClasses.keySet()
 				.collect { cn ->
-					new ClassDefinition(name: cn, 
-						code: newClasses[cn].bytes, source: newClasses[cn].file) 
+					new ClassDefinition(name: cn, code: newClasses[cn].bytes) 
 				}
 
 			def removed = prevClasses.keySet().findAll { !(it in newClasses.keySet()) }
 				.collect { cn -> 
-					new ClassDefinition(name: cn, code: null, source: null) 
+					new ClassDefinition(name: cn, code: null) 
 				}
 
+			
 			prevClasses = newClasses
-
+			
 			return new CompilationResult(updated, removed)
 
 		} catch (MultipleCompilationErrorsException e) {
@@ -161,13 +161,12 @@ class ModClassLoader extends GroovyClassLoader {
 	}
 }
 
-class ClassDefinition {
+@Immutable class ClassDefinition {
 	String name
 	byte[] code
-	File source
 
 	@Override String toString() {
-		"ClassDefinition(${name}, ${source})"
+		"ClassDefinition(${name})"
 	}
 }
 

@@ -31,8 +31,9 @@ class ModuleBuilder {
 				message = "Compilation completed successful in ${(System.currentTimeMillis() - start)/1000}s"
 			} catch (CompilationErrorException e) {
 				// TODO: make this prettier?
-				message = "Compilation failed: ${e.compilationError}"
+				message = "Compilation failed because: ${e.compilationError}"
 			} catch (e) {
+				e.printStackTrace()
 				message = "Compilation failed: ${e.getMessage()}"
 			}
 

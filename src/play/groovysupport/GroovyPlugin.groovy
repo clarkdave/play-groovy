@@ -113,7 +113,9 @@ class GroovyPlugin extends PlayPlugin {
 		result.updatedClasses.each {
 			def appClass = new ApplicationClass()
 			appClass.name = it.name
-			appClass.javaFile = VirtualFile.open(it.source)
+			println Play.javaPath
+			appClass.javaFile = getJavaOrGroovy(it.name)
+			println 'javaFile: ' + appClass.javaFile
 			appClass.refresh()
 			appClass.compiled(it.code)
 			Play.classes.add(appClass)
@@ -163,5 +165,21 @@ class GroovyPlugin extends PlayPlugin {
 			// sources haven't changed
 			return null
 		}
+	}
+
+	def getJavaOrGroovy(name) {
+		if (name.contains('$')) {
+			name = name[0..name.indexOf('$')]
+		}
+		name = name.replace('.', '/')
+
+		for (path in Play.javaPath) {
+			def file = path.child(name + '.groovy')
+			if (file.exists()) return file
+			file = path.child(name + '.java')
+			if (file.exists()) return file
+		}
+
+		return null
 	}
 }
