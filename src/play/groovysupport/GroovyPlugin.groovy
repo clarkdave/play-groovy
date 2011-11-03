@@ -169,10 +169,10 @@ class GroovyPlugin extends PlayPlugin {
 
 	def getJavaOrGroovy(name) {
 		if (name.contains('$')) {
-			name = name[0..name.indexOf('$')]
+			name = name.substring(0, name.indexOf('$'))
 		}
 		name = name.replace('.', '/')
-
+		println name
 		for (path in Play.javaPath) {
 			def file = path.child(name + '.groovy')
 			if (file.exists()) return file
