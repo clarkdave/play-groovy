@@ -38,13 +38,12 @@ class GroovyPlugin extends PlayPlugin {
 		 * Specification classes too
 		 */
 		TestEngine.metaClass.static.allUnitTests = {
-			List<Class> classes = Play.classloader.getAssignableClasses(Assert.class)
-				.plus( Play.classloader.getAssignableClasses(Specification.class) )
-			
-			classes.findAll {
-				!Modifier.isAbstract(it.getModifiers()) &&
+			Play.classloader.getAssignableClasses(Assert.class)
+				.plus(Play.classloader.getAssignableClasses(Specification.class))
+				.findAll {
+					!Modifier.isAbstract(it.getModifiers()) &&
 					!FunctionalTest.class.isAssignableFrom(it)
-			}
+				}
 		}
 		
 		Logger.info('Groovy support is active')
@@ -116,6 +115,9 @@ class GroovyPlugin extends PlayPlugin {
 			println Play.javaPath
 			appClass.javaFile = getJavaOrGroovy(it.name)
 			println 'javaFile: ' + appClass.javaFile
+			// TODO: if the javaFile can't be located for some reason
+			// (i.e. if the package name was messed up), it will cause serious
+			// problems later on, so it needs to be handled here
 			appClass.refresh()
 			appClass.compiled(it.code)
 			Play.classes.add(appClass)
@@ -167,6 +169,17 @@ class GroovyPlugin extends PlayPlugin {
 		}
 	}
 
+	/**
+	 * From a class name, return the Java or Groovy source file
+	 * it came from
+	 * @param name Class name
+	 * @return The source file or null if it couldn't be found
+	 * 
+	 * @todo Ideally we should able to put multiple classes in a
+	 * single file, since Groovy lets you do this -- but this method
+	 * needs some work to allow that. It may be easier if we get the
+	 * compiler to to the class -> source finding
+	 */
 	def getJavaOrGroovy(name) {
 		if (name.contains('$')) {
 			name = name.substring(0, name.indexOf('$'))

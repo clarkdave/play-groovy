@@ -119,6 +119,12 @@ class GroovyCompiler {
 	}
 
 	/**
+	 * @todo try and make a SourceUnitOperation which creates a map of
+	 * class names to files, which would allow us to stick multiple classes
+	 * in the same file and retain proper source/error reporting
+	 */
+
+	/**
 	 * the groovy compiler appears to ignore <import package.name.*> when
 	 * trying to import nested static classes. Groovy considers these as
 	 * 'static star imports', and needs the "import static package.org.*"

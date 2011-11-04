@@ -5,3 +5,6 @@ play-groovy.jar
 test-result
 logs
 *.log
+.classpath
+.project
+build.sh
