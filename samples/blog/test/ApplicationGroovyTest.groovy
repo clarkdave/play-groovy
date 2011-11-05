@@ -1,18 +1,13 @@
 import play.test.*
-import geb.spock.GebSpec
 
-class ApplicationGroovyTest extends GebSpec {
+class ApplicationGroovyTest extends GebTest {
 	
 	def 'check index page is OK'() {
 		when:
-
-		browser.baseUrl = 'http://google.com'
-		browser.driver = new PlayGroovyDriver()
-
-		browser.go()
-		println title
+		go '/'
 
 		then:
+		statusCode == 200
 		title != 'Application error'
 	}
 }
