@@ -5,6 +5,7 @@ import groovy.io.FileType
 
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.CompilationUnit
+import org.codehaus.groovy.control.CompilationUnit.ClassgenCallback
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.control.CompilationFailedException
 import org.codehaus.groovy.control.MultipleCompilationErrorsException
@@ -12,6 +13,7 @@ import org.codehaus.groovy.control.messages.SyntaxErrorMessage
 
 import static org.codehaus.groovy.control.CompilationUnit.SourceUnitOperation
 import org.codehaus.groovy.ast.ClassHelper
+import org.codehaus.groovy.ast.ClassNode
 
 import play.Play
 import play.vfs.VirtualFile
@@ -22,6 +24,7 @@ class GroovyCompiler {
 	def output
 	def compilerConf
 	def prevClasses = [:]
+	def classesToSources = [:]
 
 	def GroovyCompiler(File app, File libs, List classpath, File output) {
 		
@@ -54,6 +57,15 @@ class GroovyCompiler {
 		// source can't be found?
 	}
 
+	def classNameToSource(name) {
+		if (name.contains('$')) {
+			// inner classes will be in the same file as
+			// their parent class, so look on that instead
+			name = name.substring(0, name.indexOf('$'))
+		}
+		return classesToSources[name]
+	}
+
 	CompilationResult update(List sources) {
 		
 		// TODO: investigate if there's a better way than creating new
@@ -63,34 +75,54 @@ class GroovyCompiler {
 		def cu = new CompilationUnit(classLoader)
 		cu.configure(compilerConf)
 
+		// reset classesToSources map
+		classesToSources = [:]
+
 		// fix static star imports, see comment on field
 		cu.addPhaseOperation(importFixer, org.codehaus.groovy.control.Phases.CONVERSION)
-
 		cu.addSources(sources as File[])
 
 		try {
 
+			def newClasses = [:]
+
+			cu.setClassgenCallback(new ClassgenCallback() {
+				void call(org.objectweb.asm.ClassVisitor writer, ClassNode node) {
+					//println 'classgen: ' + node
+					//println node.compileUnit.classesToCompile
+				}
+			})
+
 			cu.compile()
 
-			def newClasses = [:]
 			cu.getClasses().each { 
 				newClasses[it.getName()] = [bytes: it.getBytes()]
 			}
 
+			// now that compilation is done we can create the classesToSources map
+			for (sourceUnit in cu) {
+				sourceUnit.getAST().classes.each { clazz ->
+					// ignore inner classes
+					if (!clazz.name.contains('$')) {
+						classesToSources[clazz.name] = new File(sourceUnit.name)
+					}
+				}
+			}
+			
 			// NOTE: since the CompilationUnit will simply recompile everything
 			// it's given, we're not bothering with 'recompiled' classes
 
 			def updated = newClasses.keySet()
 				.collect { cn ->
-					new ClassDefinition(name: cn, code: newClasses[cn].bytes) 
+					new ClassDefinition(name: cn, 
+						code: newClasses[cn].bytes, source: classNameToSource(cn)) 
 				}
 
 			def removed = prevClasses.keySet().findAll { !(it in newClasses.keySet()) }
 				.collect { cn -> 
-					new ClassDefinition(name: cn, code: null) 
+					new ClassDefinition(name: cn, code: null, source: null) 
 				}
 
-			
 			prevClasses = newClasses
 			
 			return new CompilationResult(updated, removed)
@@ -119,12 +151,6 @@ class GroovyCompiler {
 	}
 
 	/**
-	 * @todo try and make a SourceUnitOperation which creates a map of
-	 * class names to files, which would allow us to stick multiple classes
-	 * in the same file and retain proper source/error reporting
-	 */
-
-	/**
 	 * the groovy compiler appears to ignore <import package.name.*> when
 	 * trying to import nested static classes. Groovy considers these as
 	 * 'static star imports', and needs the "import static package.org.*"
@@ -143,7 +169,7 @@ class GroovyCompiler {
 		]
 
 		void call(SourceUnit source) throws CompilationFailedException {
-			
+
 			def ast = source.getAST()
 			def imports = ast.getStarImports()
 				.collect {
@@ -167,12 +193,13 @@ class ModClassLoader extends GroovyClassLoader {
 	}
 }
 
-@Immutable class ClassDefinition {
+class ClassDefinition {
 	String name
 	byte[] code
+	File source
 
 	@Override String toString() {
-		"ClassDefinition(${name})"
+		"ClassDefinition(name: ${name}, source: ${source})"
 	}
 }
 

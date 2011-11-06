@@ -113,8 +113,7 @@ class GroovyPlugin extends PlayPlugin {
 			def appClass = new ApplicationClass()
 			appClass.name = it.name
 			println Play.javaPath
-			appClass.javaFile = getJavaOrGroovy(it.name)
-			println 'javaFile: ' + appClass.javaFile
+			appClass.javaFile = new VirtualFile(it.source)
 			// TODO: if the javaFile can't be located for some reason
 			// (i.e. if the package name was messed up), it will cause serious
 			// problems later on, so it needs to be handled here
@@ -167,32 +166,5 @@ class GroovyPlugin extends PlayPlugin {
 			// sources haven't changed
 			return null
 		}
-	}
-
-	/**
-	 * From a class name, return the Java or Groovy source file
-	 * it came from
-	 * @param name Class name
-	 * @return The source file or null if it couldn't be found
-	 * 
-	 * @todo Ideally we should able to put multiple classes in a
-	 * single file, since Groovy lets you do this -- but this method
-	 * needs some work to allow that. It may be easier if we get the
-	 * compiler to to the class -> source finding
-	 */
-	def getJavaOrGroovy(name) {
-		if (name.contains('$')) {
-			name = name.substring(0, name.indexOf('$'))
-		}
-		name = name.replace('.', '/')
-		println name
-		for (path in Play.javaPath) {
-			def file = path.child(name + '.groovy')
-			if (file.exists()) return file
-			file = path.child(name + '.java')
-			if (file.exists()) return file
-		}
-
-		return null
 	}
 }

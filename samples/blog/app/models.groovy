@@ -6,6 +6,15 @@ import play.data.binding.*
 import play.data.validation.*
 import play.db.jpa.Model
 
+
+@Entity
+class User extends Model {
+	
+	@Required
+	String username
+
+}
+
 @Entity
 class Post extends Model {
 	
