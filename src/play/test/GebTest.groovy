@@ -119,7 +119,7 @@ class GebTest extends GebSpec {
 		// TODO: removed the asynchronous execution for now as it was
 		// breaking static file requests. At the moment any requests for static
 		// stuff (/public) will just return as 200 OKs with empty strings
-		// stuff still works but it means anything testing css/js functionality
+		// things still work but it means anything testing css/js functionality
 		// won't work
 
 		try {

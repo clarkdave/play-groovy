@@ -42,8 +42,14 @@ class GroovyPlugin extends PlayPlugin {
 				.plus(Play.classloader.getAssignableClasses(Specification.class))
 				.findAll {
 					!Modifier.isAbstract(it.getModifiers()) &&
-					!FunctionalTest.class.isAssignableFrom(it)
+					!FunctionalTest.class.isAssignableFrom(it) &&
+					!GebTest.class.isAssignableFrom(it)
 				}
+		}
+
+		TestEngine.metaClass.static.allGebTests << {
+			Play.classloader.getAssignableClasses(GebTest.class)
+				.findAll { !Modifier.isAbstract(it.getModifiers()) }
 		}
 		
 		Logger.info('Groovy support is active')
@@ -112,11 +118,10 @@ class GroovyPlugin extends PlayPlugin {
 		result.updatedClasses.each {
 			def appClass = new ApplicationClass()
 			appClass.name = it.name
-			println Play.javaPath
 			appClass.javaFile = new VirtualFile(it.source)
 			// TODO: if the javaFile can't be located for some reason
-			// (i.e. if the package name was messed up), it will cause serious
-			// problems later on, so it needs to be handled here
+			// it will cause serious problems later on, so it needs to 
+			// be handled here
 			appClass.refresh()
 			appClass.compiled(it.code)
 			Play.classes.add(appClass)
@@ -149,14 +154,19 @@ class GroovyPlugin extends PlayPlugin {
 		Play.javaPath.each {
 			GroovyCompiler.getSourceFiles(it.getRealFile()).each { f -> map[f] = f.lastModified()}
 		}
-		return map
+		return map.findAll { file, lastModified ->
+			// we'd like to override the testrunner controller with our own, so
+			// let's make sure it never gets compiled... bit of a hack but I couldn't
+			// see any other way to override a controller in an included module
+			!(file.toString() =~ /(?i)testrunner.+TestRunner\.java/)
+		}
 	}
 
 	def update() {
 		
 		// get the latest sources
 		def newSources = sources()
-
+		
 		if (currentSources != newSources) {
 			// sources have changed, so compile them
 			def result = compiler.update(newSources.keySet().toList())

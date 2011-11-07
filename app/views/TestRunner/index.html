@@ -222,6 +222,9 @@
             .testResult table pre.trace {
                 display: none;
             }
+            .testResult table pre.error {
+                font-size: 125%;
+            }
             .testResult table .sourceLine {
                 border-left: 3px solid #c00;
                 padding: 4px 3px;
@@ -358,13 +361,17 @@
                             dataType: 'html',
                             url: '@{TestRunner.run("XXX")}'.replace('XXX', testId),
                             complete: function(res, status) {
-                                var results = jQuery("<div/>").append(res.responseText).find('table');
+                                var body = jQuery('<div/>').append(res.responseText)
+                                var results = body.find('table');
+                                
                                 if(!results || !results.size()) {
                                     results = '<strong class="error">Error, the test has not been properly run. Check the server logs, or open this test in another browser tab to see the error page.</strong>';
+                                    testFail(test, results);
                                 }
-                                if(status == 'success') {
+                                else if (body.find('.block.success').size()) {
                                     testSuccess(test, results);
-                                } else {
+                                }
+                                else {
                                     testFail(test, results);
                                 };
                             }
@@ -409,7 +416,7 @@
                     runNextTest();
                 };
                                 
-                var testFail = function(test, result) {
+                var testFail = function(test, result) {console.log('hi')
                     test.removeClass('passing').addClass('failed');
                     $('.touch', test).html('-');
                     $('.testResult', test).html(result).show();
@@ -588,6 +595,21 @@
             <h2><span>There ${unitTests.size().pluralize('is', 'are')} ${unitTests.size()} unit test${unitTests.size().pluralize()},</span></h2>
             <ul>
                 #{list items:unitTests, as:'test'}
+                <li>
+                    <div class="test" id="${test.name}.class">
+                        <span class="touch">+</span><a href="@{TestRunner.run(test.name+'.class')}">${test.name.replace('.','/').replace('$','.')}</a>
+                        <div class="testResult"></div>
+                    </div>
+                </li>
+                #{/list}
+            </ul>
+            %{ tis = true; }%
+            #{/if}
+
+            #{if gebTests}
+            <h2><span>${tis ? '' : 'There '+gebTests.size().pluralize('is', 'are')} ${tis && !functionalTests ? 'and' : ''} ${gebTests.size()} geb test${gebTests.size().pluralize()},</span></h2>
+            <ul>
+                #{list items:gebTests, as:'test'}
                 <li>
                     <div class="test" id="${test.name}.class">
                         <span class="touch">+</span><a href="@{TestRunner.run(test.name+'.class')}">${test.name.replace('.','/').replace('$','.')}</a>
