@@ -22,6 +22,41 @@ Any work you need to do with collections in particular will benefit from Groovy'
 
 Take a look at the samples/blog app, which is a Groovyified version of the Play 'yabe' app.
 
+**Accessors/mutators**
+Play has you set your model fields as public and then autogenerates get and set methods for it. In Groovy, you should not set a visibility modifier for your fields. The Groovy compiler will default these fields to private but create a get and set method for it, as Play does.
+
+So while in standard Play you'd do this:
+
+	public class Post extends Model {
+		public String title
+	}
+	...
+	Post p = new Post()
+	p.title = 'Hello'
+
+In Groovy, do this:
+
+	class Post extends Model {
+		String title
+	}
+	...
+	Post p = new Post()
+	p.title
+
+In both cases, you can override the get/set methods with your own.
+
+**Constructors**
+If you like, you can leave your models without a constructor and then instantiate them using the Groovy bean constructor, like so:
+
+	class Post extends Model {
+		String title
+		String content
+	}
+	...
+	Post p = new Post(title: 'Hello World', content: 'Lorem ipsum...')
+
+But be aware this will reduce the amount of compile-time checking that can happen.
+
 Tests
 -----
 Perhaps the most useful thing about this is the built-in [Spock](http://spockframework.org) and [Geb](http://www.gebish.org) support. Spock lets you write your unit and functional tests in a really expressive way, and formats errors in a monospaced, readable fashion.
