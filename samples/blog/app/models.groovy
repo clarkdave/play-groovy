@@ -71,6 +71,28 @@ class Post extends Model {
 	Post next() {
 		Post.find('postedAt > ? order by postedAt asc', postedAt).first()
 	}
+
+	Post tagItWith(String name) {
+        tags.add(Tag.findOrCreateByName(name))
+        return this
+    }
+    
+    static List<Post> findTaggedWith(String tag) {
+        return Post.find(
+            "select distinct p from Post p join p.tags as t where t.name = ?",
+            tag
+        ).fetch()
+    }
+    
+    static List<Post> findTaggedWith(String... tags) {
+        return Post.find(
+            "select distinct p.id from Post p join p.tags as t where t.name in (:tags) group by p.id having count(t.id) = :size"
+        ).bind("tags", tags).bind("size", tags.length).fetch()
+    }
+    
+    String toString() {
+        return title
+    }
 }
 
 @Entity

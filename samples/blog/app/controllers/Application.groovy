@@ -12,6 +12,12 @@ import models.*
 
 class Application extends Controller {
 
+	@Before
+	static void addDefaults() {
+		renderArgs.put("blogTitle", Play.configuration.getProperty("blog.title"))
+		renderArgs.put("blogBaseline", Play.configuration.getProperty("blog.baseline"))
+	}
+
 	static void index() {
 		Post frontPost = Post.find('order by postedAt desc').first()
 		List<Post> olderPosts = Post.find('order by postedAt desc').from(1).fetch(1)
@@ -41,6 +47,18 @@ class Application extends Controller {
 		flash.success('Thanks for posting %s', author)
 		Cache.delete(randomId)
 		show(postId)
+	}
+
+	static void captcha(String id) {
+		Images.Captcha captcha = Images.captcha()
+		String code = captcha.getText('#E4EAFD')
+		Cache.set(id, code, '30mn')
+		renderBinary(captcha)
+	}
+
+	static void listTagged(String tag) {
+		def posts = Post.findTaggedWith(tag)
+		render(tag, posts)
 	}
 
 }
