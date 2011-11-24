@@ -28,12 +28,12 @@ Play has you set your model fields as public and then autogenerates get and set 
 So while in standard Play you'd do this:
 
 	public class Post extends Model {
-		public String title
+		public String title;
 	}
 	...
-	Post p = new Post()
-	p.title = 'Hello'
-	System.out.println(p.title)
+	Post p = new Post();
+	p.title = 'Hello';
+	System.out.println(p.title);
 
 In Groovy, do this:
 
