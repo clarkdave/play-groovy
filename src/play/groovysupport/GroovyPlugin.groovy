@@ -149,12 +149,32 @@ class GroovyPlugin extends PlayPlugin {
 		}
 	}
 
+	def loadedModuleNames = {
+		Play.modules.collect { name, file -> 
+			file.getRealFile().toString().toLowerCase() }
+	}.memoize()
+
+	/**
+	 * get a map of our Groovy and Java sources... because the Groovy Compiler
+	 * isn't always so great at compiling Java files, for modules we want to use
+	 * a Java compiler instead, since Groovy's had some problems (for example, the
+	 * inner annotation definitions in the CRUD module caused issues)
+	 *
+	 * So, any .java files which are part of a module will be considered Java
+	 * sources. Any Java files within the Play app will be compiled by Groovy as
+	 * usual to ensure cross-compilation support works fine.
+	 */
 	def sources() {
-		def map = [:]
+		def m = [:]
 		Play.javaPath.each {
-			GroovyCompiler.getSourceFiles(it.getRealFile()).each { f -> map[f] = f.lastModified()}
+			GroovyCompiler.getSourceFiles(it.getRealFile()).each { f -> m[f] = f.lastModified()}
 		}
-		return map.findAll { file, lastModified ->
+		def sources = [
+			'groovy': [:],
+			'java': [:]
+		]
+		println loadedModuleNames
+		return m.findAll { file, lastModified ->
 			// we'd like to override the testrunner controller with our own, so
 			// let's make sure it never gets compiled... bit of a hack but I couldn't
 			// see any other way to override a controller in an included module

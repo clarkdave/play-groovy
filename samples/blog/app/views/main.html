@@ -1,16 +1,42 @@
 <!DOCTYPE html>
 
 <html>
-    <head>
-        <title>#{get 'title' /}</title>
-        <meta charset="${_response_encoding}">
-        <link rel="stylesheet" media="screen" href="@{'/public/stylesheets/main.css'}">
-        #{get 'moreStyles' /}
-        <link rel="shortcut icon" type="image/png" href="@{'/public/images/favicon.png'}">
-        <script src="@{'/public/javascripts/jquery-1.5.2.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
-        #{get 'moreScripts' /}
-    </head>
-    <body>
-        #{doLayout /}
-    </body>
+	<head>
+		<title>#{get 'title' /}</title>
+		<meta charset="${_response_encoding}">
+		<link rel="stylesheet" media="screen" href="@{'/public/stylesheets/main.css'}">
+		#{get 'moreStyles' /}
+		<link rel="shortcut icon" type="image/png" href="@{'/public/images/favicon.png'}">
+		<script src="@{'/public/javascripts/jquery-1.5.2.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+		#{get 'moreScripts' /}
+	</head>
+	<body>
+		
+		<div id="header">
+			<div id="logo">
+				yabe.
+			</div>
+			<ul id="tools">
+				<li>
+					<a href="@{Admin.index()}">Log in to write something</a>
+				</li>
+			</ul>
+			<div id="title">
+				<span class="about">About this blog</span>
+				<h1><a href="@{Application.index()}">${blogTitle}</a></h1>
+				<h2>${blogBaseline}</h2>
+			</div>
+		</div>
+
+		<div id="main">
+			#{doLayout /}
+		</div>
+
+		<p id="footer">
+			Yabe is a (not so) powerful blog engine built with the 
+			<a href="http://www.playframework.org">play framework</a>
+			as a tutorial application.
+		</p>
+		
+	</body>
 </html>
