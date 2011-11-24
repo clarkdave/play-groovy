@@ -9,6 +9,7 @@ import org.codehaus.groovy.control.CompilationUnit.ClassgenCallback
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.control.CompilationFailedException
 import org.codehaus.groovy.control.MultipleCompilationErrorsException
+import org.codehaus.groovy.control.messages.SimpleMessage
 import org.codehaus.groovy.control.messages.SyntaxErrorMessage
 
 import static org.codehaus.groovy.control.CompilationUnit.SourceUnitOperation
@@ -78,25 +79,6 @@ class GroovyCompiler {
 		// reset classesToSources map
 		classesToSources = [:]
 
-		// we want to compile Java modules using the Java compiler... the Groovy compiler,
-		// though generally pretty good at cross-compilation, doesn't compile certain things
-		// (like the CRUD module), so we need to catch these and send them off to the Java
-		// compiler instead
-
-		// this is only for modules though -- for java inside the app, we'll still use the
-		// groovy compiler. this will allow proper cross-compilation (java/groovy talking to
-		// each other), the trade-off is that a few Java syntaxes won't be supported
-		def moduleFiles = Play.modules.collect { name, file -> 
-			file.getRealFile().toString().toLowerCase() }
-		
-		def javaSources = sources.findAll { src ->
-			src = src.toString().toLowerCase()
-			for (file in moduleFiles) {
-				if (src.startsWith(file) && src.endsWith('.java')) return true
-			}
-			return false
-		}
-
 		// fix static star imports, see comment on field
 		cu.addPhaseOperation(importFixer, org.codehaus.groovy.control.Phases.CONVERSION)
 		cu.addSources(sources as File[])
@@ -149,18 +131,30 @@ class GroovyCompiler {
 		} catch (MultipleCompilationErrorsException e) {
 			
 			if (e.getErrorCollector().getLastError() != null) {
-				def errorMessage = e.getErrorCollector().getLastError() as SyntaxErrorMessage
-				def syntaxException = errorMessage.getCause()
+
+				def errorMessage = e.getErrorCollector().getLastError()// as SyntaxErrorMessage
+				if (errorMessage instanceof SimpleMessage) {
+					// TODO: this shouldn't happen but handle it somehow
+					// just in case
+					println 'This is really bad and should not have happened'
+					e.printStackTrace()
+					System.exit(1)
+				}
+				else {
+					errorMessage = errorMessage as SyntaxErrorMessage
+					def syntaxException = errorMessage.getCause()
 				
-				def compilationError = new CompilationError(
-					message: syntaxException.getMessage(),
-					line: syntaxException.getLine(),
-					start: syntaxException.getStartColumn(),
-					end: syntaxException.getStartLine(),
-					source: new File(syntaxException.getSourceLocator())
-				)
+					def compilationError = new CompilationError(
+						message: syntaxException.getMessage(),
+						line: syntaxException.getLine(),
+						start: syntaxException.getStartColumn(),
+						end: syntaxException.getStartLine(),
+						source: new File(syntaxException.getSourceLocator())
+					)
+					
+					throw new CompilationErrorException(compilationError)
+				}
 				
-				throw new CompilationErrorException(compilationError)
 			}
 
 			throw new CompilationErrorException(
