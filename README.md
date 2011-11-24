@@ -23,7 +23,7 @@ Any work you need to do with collections in particular will benefit from Groovy'
 Take a look at the samples/blog app, which is a Groovyified version of the Play 'yabe' app.
 
 ### Accessors/mutators ###
-Play has you set your model fields as public and then autogenerates get and set methods for it. In Groovy, you should not set a visibility modifier for your fields. The Groovy compiler will default these fields to private but create a get and set method for it, as Play does.
+Play has you set your model fields as public and then autogenerates get and set methods for them. In Groovy, you should not set a visibility modifier for your fields. The Groovy compiler will default these fields to private but create a get and set method for it, as Play does.
 
 So while in standard Play you'd do this:
 
@@ -33,6 +33,7 @@ So while in standard Play you'd do this:
 	...
 	Post p = new Post()
 	p.title = 'Hello'
+	System.out.println(p.title)
 
 In Groovy, do this:
 
@@ -41,7 +42,8 @@ In Groovy, do this:
 	}
 	...
 	Post p = new Post()
-	p.title
+	p.title = 'Hello'
+	println(p.title)
 
 In both cases, you can override the get/set methods with your own.
 
