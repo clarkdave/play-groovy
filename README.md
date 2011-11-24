@@ -29,6 +29,7 @@ Perhaps the most useful thing about this is the built-in [Spock](http://spockfra
 You can also use Geb to do functional/selenium type testing. I'm still not sure exactly how useful it is, but it's there for you to play with.
 
 Here's an example of a Spock test in play:
+
 	def 'try to connect as a user'() {
 		given:
 		new User(email: 'bob@gmail.com', password: 'secret', fullname: 'Bob').save()
