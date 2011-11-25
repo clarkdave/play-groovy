@@ -10,7 +10,7 @@ Done
  * can put multiple classes in files (classes not tied to filenames)
 * Spock tests
  * Treated as normal unit tests but with nicer syntax and better error output
-* Geb tests
+* Geb tests (unfinished)
  * Can be used to do functional or selenium type testing (htmlunit)
  * can also visit external pages as part of a test
 
