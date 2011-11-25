@@ -14,6 +14,16 @@ Done
  * Can be used to do functional or selenium type testing (htmlunit)
  * can also visit external pages as part of a test
 
+Installation
+------------
+This module isn't on the Play repo yet, so if you want to use it you'll need to install it manually.
+
+* clone the repository and run **play build-module** inside it
+* this will give you a *dist/play-groovy-1.0.zip*
+* unzip this into *{play-home}/modules/groovy-1.0*
+* create a new play groovy app: **play new groovyapp --with groovy** and wait for the dependencies to download
+* enjoy your play groovy application! go forth and find some bugs
+
 Usage
 -----
 This isn't as radical as the Play Scala plugin. You can still use JPA and structure your models in the same way as you would in Java... but you can cut down on line noise using Groovy's syntax, and exploit its dynamic nature when it's useful. Because it supports cross-compilation, you can also keep most of your app Java and add a few Groovy files (such as Spock tests) when you want.
