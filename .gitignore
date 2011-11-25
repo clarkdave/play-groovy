@@ -1,5 +1,6 @@
 *.pyc
 tmp
+dist
 play-groovy-compiler.jar
 play-groovy.jar
 test-result
