@@ -92,7 +92,7 @@ public class TestRunner extends Controller {
 				Logger.error(e, "Cannot ouput XML unit output");
 			}            
 			response.contentType = "text/html";
-			Logger.info(response.status.toString())
+			//Logger.info(response.status.toString())
 			renderText(result);
 		}
 		if (test.endsWith(".test.html.suite")) {

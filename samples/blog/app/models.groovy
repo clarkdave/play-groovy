@@ -136,8 +136,14 @@ class Tag extends Model implements Comparable<Tag> {
 		Tag.find('byName', name).first() ?: new Tag(name)
 	}
 
+	static List<Map> getCloud() {
+		Tag.find(
+			'select new map(t.name as tag, count(p.id) as pound) from Post p join p.tags as t group by t.name'
+		).fetch()
+	}
+
 	String toString() {
-		name
+		"Tag(${name})"
 	}
 
 	int compareTo(Tag tag) {
