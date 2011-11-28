@@ -19,7 +19,7 @@ Installation
 This module isn't on the Play repo yet, so if you want to use it you'll need to install it manually.
 
 * clone the repository and run **play build-module** inside it
-* this will give you a *dist/play-groovy-1.0.zip*
+* this will give you a *dist/play-groovy-0.1.zip*
 * unzip this into *{play-home}/modules/groovy-0.1*
 * create a new play groovy app: **play new groovyapp --with groovy** and wait for the dependencies to download
 * enjoy your play groovy application! go forth and find some bugs
