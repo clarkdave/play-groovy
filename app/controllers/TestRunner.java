@@ -24,10 +24,9 @@ public class TestRunner extends Controller {
 
 	public static void index() {
 		List<Class> unitTests = TestEngine.allUnitTests();
-		List<Class> gebTests = TestEngine.allGebTests();
 		List<Class> functionalTests = TestEngine.allFunctionalTests();
 		List<String> seleniumTests = TestEngine.allSeleniumTests();
-		render(unitTests, gebTests, functionalTests, seleniumTests);
+		render(unitTests, functionalTests, seleniumTests);
 	}
 
 	public static void list() {
@@ -38,9 +37,6 @@ public class TestRunner extends Controller {
 		p.println(Router.reverse(Play.modules.get("_testrunner").child("/public/test-runner/selenium/TestRunner.html")));
 		for(Class c : TestEngine.allUnitTests()) {
 			p.println(c.getName() + ".class");
-		}
-		for(Class c : TestEngine.allGebTests()) {
-			p.println(c.getname() + ".class");
 		}
 		for(Class c : TestEngine.allFunctionalTests()) {
 			p.println(c.getName() + ".class");
