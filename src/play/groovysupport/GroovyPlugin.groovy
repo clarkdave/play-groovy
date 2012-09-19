@@ -209,51 +209,47 @@ class GroovyPlugin extends PlayPlugin {
 	def updateJava(sources) {
 
 		if (currentSources?.java != sources) {
-
+            
 			def result = []
-
+            
 			sources.each { file, time ->
-				def src = file.toString()
+				def src = file.absolutePath
 				// remove .java at the end
 				src = src.substring(0, src.length()-5)
-
-				// we need to turn this source into a class name, but we can't just
-				// assume it's in /modules/ (it could be anywhere...) so run through
-				// the loaded modules and if it matches, remove the matching path
-				for (modName in loadedModuleNames()) {
-					if (src.startsWith(modName)) {
-						src = src.substring(modName.length())
-						break
+                
+				//We have to remove classpath prefix from file name
+                //to make sure we can get fully qualified class name from it
+				for (jPath in Play.javaPath) {
+                    def path = jPath.realFile.absolutePath;
+					if (src.startsWith(path)) {
+						src = src.substring(path.length() + 1)
+                        break
 					}
 				}
-				// is it OK to assume the file is in /app? it might not be, but
-				// for now it seems to work
-				if (src.startsWith('/app')) {
-					src = src.substring(5)
-				}
-				else {
-					println 'Not sure what to do with this source. This is probably a bug'
-				}
-				
-				def className = src.replace(File.separator, '.')
+                
+                def className = src.replace(File.separator, '.')
 				def appClass = Play.classes.getApplicationClass(className)
-
-				// TODO: refresh based on lastmodified timestamp, etc..
-				appClass.refresh()
-
-				if (appClass.compile() == null) {
-					Play.classes.classes.remove(appClass.name)
-				} else {
-					result << appClass
-				}
-			}
-
-			currentSources.java = sources
-
-			return result
-		}
-
-		return null
+                
+                if(appClass) {
+                    // TODO: refresh based on lastmodified timestamp, etc..
+                    appClass.refresh()
+                    
+                    if (appClass.compile() == null) {
+                        Play.classes.classes.remove(appClass.name)
+                    } else {
+                        result << appClass
+                    }
+                } else {
+                    println("Could not get class for name: ${src}.")
+                }
+            }
+            
+            currentSources.java = sources
+            
+            return result
+        }
+        
+        return null
 	}
 
 	def updateGroovy(sources) {
