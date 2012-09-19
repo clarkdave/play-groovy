@@ -43,11 +43,13 @@ class GroovyCompiler {
 	static def getSourceFiles = { path, regex = /^[^.].*[.](groovy|java)$/ ->
 			
 		def list = []
-		path.eachFileRecurse(FileType.FILES, { f ->
-			if (f =~ regex) {
-				list << f
-			}
-		})
+		if(path.exists()) {
+			path.eachFileRecurse(FileType.FILES, { f ->
+				if (f =~ regex) {
+					list << f
+				}
+			})
+		}
 		return list
 	}
 
